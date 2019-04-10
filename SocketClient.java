@@ -45,7 +45,7 @@ import java.net.SocketTimeoutException;
 
 
 @DesignerComponent(version = 1,
-    description = "by Roger Young",
+    description = "by SCUT Jack",
     category = ComponentCategory.EXTENSION,
     nonVisible = true,
     iconName = "images/extension.png")
@@ -82,7 +82,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
  
     };
 	
-    @SimpleFunction(description = "start")
+    @SimpleFunction(description = "close connection")
     public void closeConnect(){
         if(socket != null){
             mt = new MyThread(CLOSE);
@@ -91,7 +91,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
             GetMessage("连接未创建！");
         }
     }
-    @SimpleFunction(description = "start")
+    @SimpleFunction(description = "send message")
     public void sendMessage(String s){
         if(socket != null){
             mt = new MyThread(SENDMESSAGE);
@@ -101,7 +101,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
             GetMessage("连接未创建！");
         }
     }
-	@SimpleFunction(description = "start")
+	@SimpleFunction(description = "receive one message")
     public void recvMessage(){
         if(socket != null){
             mt = new MyThread(RECVMESSAGE);
@@ -110,7 +110,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
             GetMessage("连接未创建！");
         }
     }
-    @SimpleFunction(description = "connect")
+    @SimpleFunction(description = "connect server")
     public void connect(String ip){
         if(socket == null){
             mt = new MyThread(CONNECT);
@@ -121,7 +121,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
         }
     }
 	
-    @SimpleFunction(description = "getConnectedDevIP")
+    @SimpleFunction(description = "get connected devices IP")
     public String getConnectedDevIP(){
 		ArrayList<String> connectedIP = new ArrayList<String>();
         try {
@@ -222,7 +222,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
                         myHandler.sendMessage(msg);
                     } catch (IOException e) {
                         msg = myHandler.obtainMessage();
-                        msg.obj = "未知错误";
+                        msg.obj = "连接错误";
                         myHandler.sendMessage(msg);
                     }
                 break;
@@ -238,7 +238,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
 
                     }catch (IOException e) {
                         msg = myHandler.obtainMessage();
-                        msg.obj = "SENDMESSAGE错误";
+                        msg.obj = "发送信息错误";
                         myHandler.sendMessage(msg);
                     }
                 break;
@@ -263,7 +263,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
                        }
                     }catch (IOException e) {
                         msg = myHandler.obtainMessage();
-                        msg.obj = "未知错误";
+                        msg.obj = "接受消息错误";
                         myHandler.sendMessage(msg);
                     }
                 break;
@@ -277,7 +277,7 @@ public class SocketClient extends AndroidNonvisibleComponent {
                         myHandler.sendMessage(msg);
                     }catch (IOException e) {
                         msg = myHandler.obtainMessage();
-                        msg.obj = "未知错误";
+                        msg.obj = "关闭连接错误";
                         myHandler.sendMessage(msg);
                     }
                 break;
