@@ -72,20 +72,14 @@ public class SocketClient extends AndroidNonvisibleComponent {
         @Override
         public void handleMessage(Message msg) {
 			if(msg.what == RECVBKMESSAGE){
-				HashMap<String, String> map = parseString(msg.obj.toString());
-				String temp = "";
-				for (Entry<String, String> entry : map.entrySet()) {
-					temp += entry.getKey() + "-" + entry.getValue() + "\n";
-				}
-				GetMessage(temp);
+				GetServerMessage(msg.obj.toString());
 		    }else{
 				GetMessage(msg.obj.toString());
 			}
-		
-            
         }
  
     };
+	
     @SimpleFunction(description = "start")
     public void closeConnect(){
         if(socket != null){
@@ -137,6 +131,16 @@ public class SocketClient extends AndroidNonvisibleComponent {
 		return map;
 	}
 	
+	
+	@SimpleEvent
+    public void GetServerMessage(String s){
+		HashMap<String, String> map = parseString(s);
+		String temp = "";
+		for (Entry<String, String> entry : map.entrySet()) {
+			temp += entry.getKey() + "-" + entry.getValue() + "\n";
+		}
+		EventDispatcher.dispatchEvent(this, "GetServerMessage", "\n"+temp);
+    }
 	
     @SimpleEvent
     public void GetMessage(String s){
