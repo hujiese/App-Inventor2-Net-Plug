@@ -13,6 +13,7 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.Drawable;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,6 +23,7 @@ import java.net.Socket;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.ArrayList;
 
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -118,7 +120,31 @@ public class SocketClient extends AndroidNonvisibleComponent {
             GetMessage("连接已创建！");
         }
     }
-
+	
+    @SimpleFunction(description = "getConnectedDevIP")
+    public String getConnectedDevIP(){
+		ArrayList<String> connectedIP = new ArrayList<String>();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(
+                    "/proc/net/arp"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] splitted = line.split(" +");
+                if (splitted != null && splitted.length >= 4) {
+                    String ip = splitted[0];
+                    connectedIP.add(ip);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		if(connectedIP.get(0) != null){
+			return connectedIP.get(1);
+		}else{
+			return "No Device Connect";
+		}
+    }
+	
 	public HashMap<String, String> parseString(String message){
 		HashMap<String, String> map = new HashMap<String, String>();
 		String lists[] = message.split(";");
