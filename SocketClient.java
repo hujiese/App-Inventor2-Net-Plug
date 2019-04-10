@@ -20,6 +20,9 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -55,10 +58,12 @@ public class SocketClient extends AndroidNonvisibleComponent {
     String buffer = "";
     String geted1;
     MyThread mt;
+	boolean closed = false;
     final int CONNECT = 100001;
     final int SENDMESSAGE = 100002;
     final int CLOSE = 100003;
 	final int RECVMESSAGE = 100004;
+	final int RECVBKMESSAGE = 100005;
 	
     public SocketClient(ComponentContainer container) {
         super(container.$form());
@@ -66,7 +71,18 @@ public class SocketClient extends AndroidNonvisibleComponent {
     public Handler myHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            GetMessage(msg.obj.toString());
+			if(msg.what == RECVBKMESSAGE){
+				HashMap<String, String> map = parseString(msg.obj.toString());
+				String temp = "";
+				for (Entry<String, String> entry : map.entrySet()) {
+					temp += entry.getKey() + "-" + entry.getValue() + "\n";
+				}
+				GetMessage(temp);
+		    }else{
+				GetMessage(msg.obj.toString());
+			}
+		
+            
         }
  
     };
@@ -109,6 +125,18 @@ public class SocketClient extends AndroidNonvisibleComponent {
         }
     }
 
+	public HashMap<String, String> parseString(String message){
+		HashMap<String, String> map = new HashMap<String, String>();
+		String lists[] = message.split(";");
+		for(String str : lists) {
+			String key = str.split(":")[0];
+			String value = str.split(":")[1];
+			map.put(key, value);
+		}
+		
+		return map;
+	}
+	
 	
     @SimpleEvent
     public void GetMessage(String s){
@@ -146,6 +174,18 @@ public class SocketClient extends AndroidNonvisibleComponent {
                         msg = myHandler.obtainMessage();
                         msg.obj = "连接成功";
                         myHandler.sendMessage(msg);
+						while(true && !closed){
+							byte[] bys = new byte[1024];
+							int len = is.read(bys); // 阻塞
+							String temp = new String(bys, 0, len);
+			
+							if(temp != null){
+								msg = myHandler.obtainMessage();
+								msg.what = RECVBKMESSAGE;
+								msg.obj = temp;
+								myHandler.sendMessage(msg);
+						   }
+						}
                     } catch (SocketTimeoutException aa) {
                         msg = myHandler.obtainMessage();
                         msg.obj = "连接超时";
